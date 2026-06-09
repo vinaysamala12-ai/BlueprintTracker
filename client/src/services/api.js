@@ -1,0 +1,44 @@
+import axios from 'axios';
+
+const api = axios.create({ baseURL: '/api' });
+
+api.interceptors.response.use(
+  res => res,
+  err => {
+    const message = err.response?.data?.message || err.message || 'Request failed';
+    return Promise.reject(new Error(message));
+  }
+);
+
+// ── Documents ────────────────────────────────────────────────────────────────
+export const getDocuments = (params) => api.get('/documents', { params });
+export const getDocument = (id) => api.get(`/documents/${id}`);
+export const submitDocument = (data) => api.post('/documents/submit', data);
+export const deleteDocument = (id) => api.delete(`/documents/${id}`);
+export const getDocumentStats = () => api.get('/documents/stats');
+
+// ── Approvals ────────────────────────────────────────────────────────────────
+export const getApprovals = (params) => api.get('/approvals', { params });
+export const getApproval = (id) => api.get(`/approvals/${id}`);
+export const getApprovalStats = () => api.get('/approvals/stats');
+export const getApprovalByToken = (token) => api.get(`/approvals/token/${token}`);
+export const respondToApproval = (token, data) => api.post(`/approvals/respond/${token}`, data);
+export const sendReminder = (id) => api.post(`/approvals/${id}/remind`);
+export const getApprovalLogs = (id) => api.get(`/approvals/${id}/logs`);
+export const getAllLogs = (params) => api.get('/approvals/logs/all', { params });
+export const getSchedulerStatus = () => api.get('/approvals/scheduler/status');
+export const runSchedulerNow = () => api.post('/approvals/scheduler/run');
+
+// ── Config ───────────────────────────────────────────────────────────────────
+export const getConfig = () => api.get('/config');
+export const updateConfig = (data) => api.put('/config', data);
+export const testEmail = (toEmail) => api.post('/config/test-email', { toEmail });
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+export const listFiles = (folder) => api.get('/storage/files', { params: { folder } });
+export const testStorage = () => api.post('/storage/test');
+export const uploadFile = (formData, onProgress) =>
+  api.post('/storage/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: e => onProgress && onProgress(Math.round((e.loaded * 100) / e.total))
+  });
