@@ -11,11 +11,13 @@ const IS_SERVERLESS = process.env.VERCEL === '1';
 
 const app = express();
 
-// ── Database ─────────────────────────────────────────────────────────────────
-// connectDB + seedConfig run at module load time so they execute on every
-// cold start, whether the runtime is serverless (Vercel) or persistent.
-connectDB();
-seedConfig().catch(err => console.error('[seedConfig]', err.message));
+// ── Database + seed ──────────────────────────────────────────────────────────
+// Run at module load time (executes on every cold start on Vercel).
+// seedConfig must wait for the DB connection — await them in sequence.
+(async () => {
+  await connectDB();
+  await seedConfig().catch(err => console.error('[seedConfig]', err.message));
+})();
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 // CLIENT_URL can be comma-separated, e.g.:
