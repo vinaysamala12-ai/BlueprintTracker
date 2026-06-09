@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api' });
+// In production REACT_APP_API_URL points at the Railway backend (e.g. https://xxx.railway.app/api).
+// In dev the CRA proxy (package.json → "proxy") forwards /api → localhost:5000.
+const api = axios.create({ baseURL: process.env.REACT_APP_API_URL || '/api' });
 
 api.interceptors.response.use(
   res => res,

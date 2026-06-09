@@ -12,7 +12,23 @@ const app = express();
 connectDB();
 
 // ── Middleware ───────────────────────────────────────────────────────────────
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
+// CLIENT_URL can be a comma-separated list, e.g.:
+//   CLIENT_URL=https://my-app.vercel.app,https://my-app-git-main-xxx.vercel.app
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',').map(o => o.trim()).filter(Boolean);
+
+app.use(cors({
+  origin: (origin, cb) => {
+    // Allow server-to-server / curl (no Origin header)
+    if (!origin) return cb(null, true);
+    // Exact match from allowlist
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    // Also allow any *.vercel.app subdomain (preview deployments)
+    if (/^https:\/\/[\w-]+\.vercel\.app$/.test(origin)) return cb(null, true);
+    cb(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 
