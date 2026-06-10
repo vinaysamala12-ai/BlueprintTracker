@@ -269,6 +269,7 @@ class ApprovalService {
   async sendManualReminder(requestId) {
     const request = await ApprovalRequest.findById(requestId);
     if (!request) throw new Error('Approval request not found');
+    if (request.remindersEnabled === false) throw new Error('Reminders are stopped for this request. Resume them first.');
 
     const cfg = await this._getConfig();
     const appUrl = cfg.appUrl || 'http://localhost:3000';

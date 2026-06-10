@@ -13,5 +13,6 @@ router.post('/respond/:token', ctrl.respond);
 router.get('/:id', ctrl.getApproval);
 router.get('/:id/logs', ctrl.getLogs);
 router.post('/:id/remind', ctrl.sendReminder);
+router.patch('/:id/reminders', ctrl.toggleReminders);
 
 module.exports = router;

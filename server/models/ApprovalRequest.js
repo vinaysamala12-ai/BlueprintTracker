@@ -41,7 +41,8 @@ const approvalRequestSchema = new mongoose.Schema({
   },
   submittedBy: { type: String, default: '' },
   submittedByEmail: { type: String, default: '' },
-  notes: { type: String, default: '' }
+  notes: { type: String, default: '' },
+  remindersEnabled: { type: Boolean, default: true }
 }, { timestamps: true });
 
 approvalRequestSchema.virtual('pendingCount').get(function () {

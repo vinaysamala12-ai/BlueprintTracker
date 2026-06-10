@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getApprovals, getApproval, sendReminder, getApprovalLogs } from '../../services/api';
+import { getApprovals, getApproval, sendReminder, toggleReminders, getApprovalLogs } from '../../services/api';
 
 const STATUS_OPTS = ['', 'pending', 'in_progress', 'approved', 'rejected'];
 
@@ -44,6 +44,16 @@ export default function ApprovalTracker() {
       const res = await sendReminder(id);
       setMsg({ type: 'success', text: `Reminders sent to: ${res.data.sent.join(', ') || 'none pending'}` });
       openDetail(id);
+    } catch (e) {
+      setMsg({ type: 'error', text: e.message });
+    }
+  }
+
+  async function handleToggleReminders(id, enable) {
+    try {
+      const res = await toggleReminders(id, enable);
+      setMsg({ type: 'success', text: res.data.message });
+      openDetail(id); // refresh detail panel
     } catch (e) {
       setMsg({ type: 'error', text: e.message });
     }
@@ -224,9 +234,36 @@ export default function ApprovalTracker() {
                     </ul>
 
                     {['pending', 'in_progress'].includes(selected.status) && (
-                      <button className="btn btn-warning w-full mt-4" onClick={() => handleRemind(selected._id)}>
-                        🔔 Send Reminders Now
-                      </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
+                        {/* Reminder status banner */}
+                        <div style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '8px 12px', borderRadius: 8,
+                          background: selected.remindersEnabled === false ? '#fef2f2' : '#f0fdf4',
+                          border: `1px solid ${selected.remindersEnabled === false ? '#fecaca' : '#bbf7d0'}`
+                        }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: selected.remindersEnabled === false ? '#dc2626' : '#16a34a' }}>
+                            {selected.remindersEnabled === false ? '🔕 Reminders stopped' : '🔔 Reminders active'}
+                          </span>
+                          {selected.remindersEnabled === false
+                            ? <button className="btn btn-sm" style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '4px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                                onClick={() => handleToggleReminders(selected._id, true)}>
+                                ▶ Resume
+                              </button>
+                            : <button className="btn btn-sm" style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '4px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                                onClick={() => handleToggleReminders(selected._id, false)}>
+                                ⏹ Stop
+                              </button>
+                          }
+                        </div>
+
+                        {/* Manual send — only when reminders are active */}
+                        {selected.remindersEnabled !== false && (
+                          <button className="btn btn-warning w-full" onClick={() => handleRemind(selected._id)}>
+                            🔔 Send Reminders Now
+                          </button>
+                        )}
+                      </div>
                     )}
 
                     {/* Notification log */}

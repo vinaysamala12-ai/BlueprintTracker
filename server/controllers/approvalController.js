@@ -83,6 +83,18 @@ exports.sendReminder = asyncHandler(async (req, res) => {
   res.json({ message: 'Reminders sent', sent: result.sent });
 });
 
+// PATCH /api/approvals/:id/reminders  — enable or disable reminders for one request
+exports.toggleReminders = asyncHandler(async (req, res) => {
+  const request = await ApprovalRequest.findById(req.params.id);
+  if (!request) return res.status(404).json({ message: 'Approval request not found' });
+  request.remindersEnabled = req.body.enabled !== false; // default true if not provided
+  await request.save();
+  res.json({
+    message: request.remindersEnabled ? 'Reminders resumed' : 'Reminders stopped',
+    remindersEnabled: request.remindersEnabled
+  });
+});
+
 // POST /api/approvals/scheduler/run  — manual trigger
 exports.runScheduler = asyncHandler(async (req, res) => {
   const result = await schedulerService.runNow();

@@ -111,6 +111,12 @@ class SchedulerService {
     } = cfg.scheduler;
 
     for (const request of pendingRequests) {
+      // Skip if reminders were manually stopped for this request
+      if (request.remindersEnabled === false) {
+        console.log(`[Scheduler] Reminders disabled for "${request.documentName}" — skipping`);
+        continue;
+      }
+
       // Use per-request config if set, fall back to global
       const intervalHours = request.reminderConfig?.intervalHours ?? reminderIntervalHours;
       const max = request.reminderConfig?.maxReminders ?? maxReminders;

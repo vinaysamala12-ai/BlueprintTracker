@@ -26,6 +26,7 @@ export const getApprovalStats = () => api.get('/approvals/stats');
 export const getApprovalByToken = (token) => api.get(`/approvals/token/${token}`);
 export const respondToApproval = (token, data) => api.post(`/approvals/respond/${token}`, data);
 export const sendReminder = (id) => api.post(`/approvals/${id}/remind`);
+export const toggleReminders = (id, enabled) => api.patch(`/approvals/${id}/reminders`, { enabled });
 export const getApprovalLogs = (id) => api.get(`/approvals/${id}/logs`);
 export const getAllLogs = (params) => api.get('/approvals/logs/all', { params });
 export const getSchedulerStatus = () => api.get('/approvals/scheduler/status');
