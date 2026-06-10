@@ -95,9 +95,11 @@ exports.toggleReminders = asyncHandler(async (req, res) => {
   });
 });
 
-// POST /api/approvals/scheduler/run  — manual trigger
+// POST /api/approvals/scheduler/run  — manual trigger / Vercel Cron
 exports.runScheduler = asyncHandler(async (req, res) => {
+  console.log(`[Cron] Triggered at ${new Date().toISOString()} by ${req.headers['x-vercel-cron'] ? 'Vercel Cron' : 'manual call'}`);
   const result = await schedulerService.runNow();
+  console.log(`[Cron] Completed:`, JSON.stringify(result));
   res.json(result);
 });
 

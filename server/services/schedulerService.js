@@ -105,15 +105,18 @@ class SchedulerService {
     console.log(`[Scheduler] Checking ${pendingRequests.length} active request(s)...`);
 
     const appUrl = cfg.appUrl || 'http://localhost:3000';
-    const {
-      reminderIntervalHours,
-      maxReminders
-    } = cfg.scheduler;
+    const { reminderIntervalHours, maxReminders } = cfg.scheduler;
+
+    let totalSent = 0;
+    let totalSkipped = 0;
+    const skippedReasons = [];
 
     for (const request of pendingRequests) {
       // Skip if reminders were manually stopped for this request
       if (request.remindersEnabled === false) {
         console.log(`[Scheduler] Reminders disabled for "${request.documentName}" — skipping`);
+        skippedReasons.push(`"${request.documentName}": reminders stopped`);
+        totalSkipped++;
         continue;
       }
 
@@ -124,12 +127,23 @@ class SchedulerService {
 
       for (const approval of request.approvals) {
         if (approval.status !== 'pending') continue;
-        if (approval.reminderCount >= max) continue;
+        if (approval.reminderCount >= max) {
+          console.log(`[Scheduler] Max reminders (${max}) reached for ${approval.email} — skipping`);
+          skippedReasons.push(`${approval.email}: max reminders reached`);
+          totalSkipped++;
+          continue;
+        }
 
         const lastSent = approval.lastReminderSent || approval.initialEmailSentAt || request.createdAt;
         const hoursSinceLast = (Date.now() - new Date(lastSent).getTime()) / 3_600_000;
 
-        if (hoursSinceLast < intervalHours) continue;
+        if (hoursSinceLast < intervalHours) {
+          const hoursRemaining = (intervalHours - hoursSinceLast).toFixed(1);
+          console.log(`[Scheduler] Too soon for ${approval.email} — ${hoursRemaining}h remaining until next reminder`);
+          skippedReasons.push(`${approval.email}: ${hoursRemaining}h remaining`);
+          totalSkipped++;
+          continue;
+        }
 
         const approveUrl = `${appUrl}/approve/${approval.token}?action=approve`;
         const rejectUrl = `${appUrl}/approve/${approval.token}?action=reject`;
@@ -159,22 +173,27 @@ class SchedulerService {
           approval.reminderCount += 1;
           approval.lastReminderSent = new Date();
           dirty = true;
+          totalSent++;
           console.log(`[Scheduler] Reminder #${approval.reminderCount} sent to ${approval.email} for "${request.documentName}"`);
         } catch (err) {
           console.error(`[Scheduler] Failed reminder to ${approval.email}:`, err.message);
+          skippedReasons.push(`${approval.email}: send failed — ${err.message}`);
         }
       }
 
       if (dirty) await request.save();
     }
+
+    console.log(`[Scheduler] Done — sent: ${totalSent}, skipped: ${totalSkipped}`);
+    return { remindersSent: totalSent, skipped: totalSkipped, details: skippedReasons };
   }
 
-  // ── Manual run (for testing / API trigger) ─────────────────────────────────
+  // ── Manual run (for testing / Vercel Cron trigger) ────────────────────────
 
   async runNow() {
     const cfg = await this._getConfig();
-    await this._processReminders(cfg);
-    return { triggered: true, at: new Date().toISOString() };
+    const summary = await this._processReminders(cfg);
+    return { triggered: true, at: new Date().toISOString(), ...summary };
   }
 
   async getStatus() {

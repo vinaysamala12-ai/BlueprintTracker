@@ -5,6 +5,7 @@ router.get('/stats', ctrl.getStats);
 router.get('/logs/all', ctrl.getAllLogs);
 router.get('/scheduler/status', ctrl.schedulerStatus);
 router.post('/scheduler/run', ctrl.runScheduler);
+router.get('/scheduler/run', ctrl.runScheduler);  // GET so browser/link testing works
 
 router.get('/', ctrl.getApprovals);
 router.get('/token/:token', ctrl.getByToken);
