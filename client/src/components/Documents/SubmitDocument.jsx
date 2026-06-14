@@ -40,6 +40,10 @@ export default function SubmitDocument() {
   const [manualWebUrl, setManualWebUrl] = useState('');
   const [storageType, setStorageType] = useState('onedrive');
 
+  // url link entry
+  const [urlDocName, setUrlDocName] = useState('');
+  const [urlLink, setUrlLink]       = useState('');
+
   // submission
   const [stakeholders, setStakeholders] = useState([
     { ...EMPTY_STAKEHOLDER },
@@ -137,9 +141,14 @@ export default function SubmitDocument() {
       docData = { name: selectedFile.name, path: selectedFile.path, storageType: selectedFile.storageType,
         fileId: selectedFile.fileId, driveId: selectedFile.driveId, siteId: selectedFile.siteId,
         webUrl: selectedFile.webUrl, mimeType: selectedFile.mimeType, fileSize: selectedFile.fileSize };
-    } else {
+    } else if (tab === 'manual') {
       if (!manualName.trim()) { setError('Document name is required'); return; }
       docData = { name: manualName, path: manualPath || '/', storageType, webUrl: manualWebUrl };
+    } else {
+      // url tab
+      if (!urlDocName.trim()) { setError('Document name is required'); return; }
+      if (!urlLink.trim())    { setError('Document URL is required'); return; }
+      docData = { name: urlDocName, path: '', storageType: 'external', webUrl: urlLink };
     }
 
     setSubmitting(true);
@@ -176,6 +185,7 @@ export default function SubmitDocument() {
                 <div className="tabs">
                   <div className={`tab ${tab === 'browse' ? 'active' : ''}`} onClick={() => setTab('browse')}>Browse Storage</div>
                   <div className={`tab ${tab === 'manual' ? 'active' : ''}`} onClick={() => setTab('manual')}>Enter Manually</div>
+                  <div className={`tab ${tab === 'url' ? 'active' : ''}`} onClick={() => setTab('url')}>🔗 URL Link</div>
                 </div>
 
                 {tab === 'browse' ? (
@@ -298,7 +308,7 @@ export default function SubmitDocument() {
                       </div>
                     )}
                   </>
-                ) : (
+                ) : tab === 'manual' ? (
                   /* ── Manual entry tab ── */
                   <>
                     <div className="form-group">
@@ -325,6 +335,35 @@ export default function SubmitDocument() {
                       <label className="form-label">Document Web URL</label>
                       <input className="form-input" type="url" value={manualWebUrl} onChange={e => setManualWebUrl(e.target.value)} placeholder="https://..." />
                       <div className="form-hint">Shared with stakeholders in the approval email</div>
+                    </div>
+                  </>
+                ) : (
+                  /* ── URL Link tab ── */
+                  <>
+                    <div style={{ padding: '12px 0 8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
+                        background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '10px 14px' }}>
+                        <span style={{ fontSize: 20 }}>🔗</span>
+                        <span style={{ fontSize: 13, color: '#0369a1' }}>
+                          Paste any document URL — it will be shared with stakeholders in the approval email.
+                          No upload or storage connection required.
+                        </span>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Document Name <span className="required">*</span></label>
+                      <input className="form-input"
+                        value={urlDocName}
+                        onChange={e => setUrlDocName(e.target.value)}
+                        placeholder="e.g. Q4 Budget Report.xlsx" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Document URL <span className="required">*</span></label>
+                      <input className="form-input"
+                        value={urlLink}
+                        onChange={e => setUrlLink(e.target.value)}
+                        placeholder="https://..." />
+                      <div className="form-hint">Shared with stakeholders as a "View document" link.</div>
                     </div>
                   </>
                 )}
