@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  path: { type: String, required: true },
+  path: { type: String, default: '/' },
   storageType: {
     type: String,
-    enum: ['sharepoint', 'onedrive'],
+    enum: ['sharepoint', 'onedrive', 'external'],
     required: true
   },
   fileId: { type: String, default: '' },

@@ -148,7 +148,7 @@ export default function SubmitDocument() {
       // url tab
       if (!urlDocName.trim()) { setError('Document name is required'); return; }
       if (!urlLink.trim())    { setError('Document URL is required'); return; }
-      docData = { name: urlDocName, path: '', storageType: 'external', webUrl: urlLink };
+      docData = { name: urlDocName, path: '/', storageType: 'external', webUrl: urlLink };
     }
 
     setSubmitting(true);
