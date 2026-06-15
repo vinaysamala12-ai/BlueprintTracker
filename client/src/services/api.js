@@ -15,7 +15,11 @@ api.interceptors.request.use(cfg => {
 api.interceptors.response.use(
   res => res,
   err => {
-    if (err.response?.status === 401 && !window.location.pathname.startsWith('/approve/')) {
+    if (
+      err.response?.status === 401 &&
+      !window.location.pathname.startsWith('/approve/') &&
+      window.location.pathname !== '/login'
+    ) {
       localStorage.removeItem('auth_token');
       window.location.href = '/login';
     }
