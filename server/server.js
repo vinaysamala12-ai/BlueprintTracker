@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const seedConfig = require('./config/seedConfig');
 const schedulerService = require('./services/schedulerService');
+const authMiddleware = require('./middleware/authMiddleware');
 
 // On Vercel, VERCEL=1 is set automatically by the platform
 const IS_SERVERLESS = process.env.VERCEL === '1';
@@ -37,11 +38,15 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
+// ── Auth middleware (runs before all routes) ──────────────────────────────────
+app.use(authMiddleware);
+
 // ── Routes ───────────────────────────────────────────────────────────────────
+app.use('/api/auth',      require('./routes/auth'));
 app.use('/api/documents', require('./routes/documents'));
 app.use('/api/approvals', require('./routes/approvals'));
-app.use('/api/config', require('./routes/config'));
-app.use('/api/storage', require('./routes/storage'));
+app.use('/api/config',    require('./routes/config'));
+app.use('/api/storage',   require('./routes/storage'));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 

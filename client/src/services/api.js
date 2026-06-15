@@ -4,13 +4,28 @@ import axios from 'axios';
 // In dev the CRA proxy (package.json → "proxy") forwards /api → localhost:5000.
 const api = axios.create({ baseURL: process.env.REACT_APP_API_URL || '/api' });
 
+// Attach JWT token to every request
+api.interceptors.request.use(cfg => {
+  const token = localStorage.getItem('auth_token');
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
+
+// On 401 outside the public approval page — clear token and redirect to login
 api.interceptors.response.use(
   res => res,
   err => {
+    if (err.response?.status === 401 && !window.location.pathname.startsWith('/approve/')) {
+      localStorage.removeItem('auth_token');
+      window.location.href = '/login';
+    }
     const message = err.response?.data?.message || err.message || 'Request failed';
     return Promise.reject(new Error(message));
   }
 );
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+export const login = (username, password) => api.post('/auth/login', { username, password });
 
 // ── Documents ────────────────────────────────────────────────────────────────
 export const getDocuments = (params) => api.get('/documents', { params });
