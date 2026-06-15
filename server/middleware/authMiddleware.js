@@ -20,7 +20,8 @@ module.exports = (req, res, next) => {
   if (!token) return res.status(401).json({ message: 'Authentication required' });
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret-change-me');
+    if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET env var not set');
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch {
     res.status(401).json({ message: 'Invalid or expired token — please log in again' });

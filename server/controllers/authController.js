@@ -15,8 +15,12 @@ exports.login = (req, res) => {
     return res.status(401).json({ message: 'Invalid username or password' });
   }
 
-  const secret = process.env.JWT_SECRET || 'dev-secret-change-me';
-  const token = jwt.sign({ username }, secret, { expiresIn: '24h' });
+  if (!process.env.JWT_SECRET) {
+    console.error('[Auth] JWT_SECRET env var is not set');
+    return res.status(500).json({ message: 'Server auth not configured. Set JWT_SECRET env var.' });
+  }
+
+  const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
   res.json({ token, username });
 };
