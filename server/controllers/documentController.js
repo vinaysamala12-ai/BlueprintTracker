@@ -38,8 +38,8 @@ exports.submitDocument = asyncHandler(async (req, res) => {
     stakeholders, notes, reminderConfig
   } = req.body;
 
-  if (!stakeholders || stakeholders.length !== 3) {
-    return res.status(400).json({ message: 'Exactly 3 stakeholders are required' });
+  if (!stakeholders || stakeholders.length < 1) {
+    return res.status(400).json({ message: 'At least one stakeholder is required' });
   }
 
   // Create the document record
