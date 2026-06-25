@@ -1,0 +1,71 @@
+{
+  "configurations": [
+    {
+      "name": "documents",
+      "description": "Document management tools — list, submit, view, and delete documents",
+      "active": true,
+      "tools": [
+        "list_documents",
+        "get_document",
+        "submit_document",
+        "delete_document",
+        "get_document_stats"
+      ]
+    },
+    {
+      "name": "approvals",
+      "description": "Approval workflow tools — track, remind, and monitor stakeholder decisions",
+      "active": true,
+      "tools": [
+        "list_approvals",
+        "get_approval",
+        "get_approval_stats",
+        "send_reminder",
+        "toggle_reminders",
+        "get_approval_logs",
+        "get_all_notification_logs",
+        "get_scheduler_status",
+        "run_scheduler"
+      ]
+    },
+    {
+      "name": "configuration",
+      "description": "System configuration tools — manage MS365, scheduler, and storage settings",
+      "active": true,
+      "tools": [
+        "get_configuration",
+        "update_configuration",
+        "test_email"
+      ]
+    },
+    {
+      "name": "storage",
+      "description": "File storage tools — browse OneDrive/SharePoint and test connectivity",
+      "active": true,
+      "tools": [
+        "list_storage_files",
+        "get_storage_file",
+        "test_storage_connection"
+      ]
+    },
+    {
+      "name": "readonly",
+      "description": "Read-only tools — safe for AI assistants with no write access",
+      "active": true,
+      "tools": [
+        "list_documents",
+        "get_document",
+        "get_document_stats",
+        "list_approvals",
+        "get_approval",
+        "get_approval_stats",
+        "get_approval_logs",
+        "get_all_notification_logs",
+        "get_scheduler_status",
+        "get_configuration",
+        "list_storage_files",
+        "get_storage_file"
+      ]
+    }
+  ]
+}
