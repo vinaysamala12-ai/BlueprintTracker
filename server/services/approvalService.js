@@ -10,7 +10,8 @@ const Config = require('../models/Config');
 const emailService = require('./emailService');
 const {
   approvalRequestTemplate,
-  completionTemplate
+  completionTemplate,
+  documentUpdatedTemplate
 } = require('../templates/emailTemplates');
 
 class ApprovalService {
@@ -112,8 +113,9 @@ class ApprovalService {
       // Small gap between each send to avoid MS365 throttling (1 req/sec safe zone)
       if (i > 0) await this._sleep(1500);
 
-      const approveUrl = `${appUrl}/approve/${approval.token}?action=approve`;
-      const rejectUrl  = `${appUrl}/approve/${approval.token}?action=reject`;
+      const approveUrl  = `${appUrl}/approve/${approval.token}?action=approve`;
+      const rejectUrl   = `${appUrl}/approve/${approval.token}?action=reject`;
+      const changesUrl  = `${appUrl}/approve/${approval.token}?action=changes_made`;
 
       const { subject, html } = approvalRequestTemplate({
         stakeholderName: approval.name,
@@ -121,6 +123,7 @@ class ApprovalService {
         documentWebUrl: request.documentWebUrl,
         approveUrl,
         rejectUrl,
+        changesUrl,
         submittedBy: request.submittedBy,
         appUrl,
         reminderIntervalHours: request.reminderConfig.intervalHours
@@ -186,6 +189,11 @@ class ApprovalService {
       throw new Error('This approval request has already been completed');
     }
 
+    // Handle "I've Updated the Document" action
+    if (action === 'changes_made') {
+      return await this._processChanges(request, approval, comments);
+    }
+
     // Map action verb → status noun  ('approve' → 'approved', 'reject' → 'rejected')
     const statusMap = { approve: 'approved', reject: 'rejected' };
     approval.status = statusMap[action] || action;
@@ -223,6 +231,76 @@ class ApprovalService {
     }
 
     return request;
+  }
+
+  async _processChanges(request, triggeringApproval, comments) {
+    const cfg = await this._getConfig();
+
+    // Record in change history
+    request.changeHistory.push({
+      changedBy: triggeringApproval.name,
+      changedByEmail: triggeringApproval.email,
+      changedAt: new Date(),
+      comments
+    });
+
+    // Reset all stakeholders: new tokens, back to pending
+    request.approvals.forEach(a => {
+      a.status = 'pending';
+      a.token = uuidv4();
+      a.respondedAt = null;
+      a.comments = '';
+      a.reminderCount = 0;
+      a.lastReminderSent = null;
+      a.initialEmailSent = false;
+      a.initialEmailSentAt = null;
+    });
+
+    // Reset request-level counters
+    request.approvedCount = 0;
+    request.rejectedCount = 0;
+    request.status = 'in_progress';
+    request.completedAt = null;
+
+    await request.save();
+
+    // Notify submitter
+    await this._notifyDocumentUpdated(request, triggeringApproval, comments, cfg);
+
+    // Re-send approval emails to all stakeholders with fresh tokens
+    await this._sendInitialEmails(request, cfg);
+
+    console.log(`[Email] ✏️ Document updated by ${triggeringApproval.email} — re-review emails sent to all stakeholders`);
+    return request;
+  }
+
+  async _notifyDocumentUpdated(request, triggeringApproval, comments, cfg) {
+    if (!request.submittedByEmail) return;
+    const appUrl = cfg.appUrl || 'http://localhost:3000';
+
+    const { subject, html } = documentUpdatedTemplate({
+      submittedBy: request.submittedBy,
+      documentName: request.documentName,
+      documentWebUrl: request.documentWebUrl,
+      changedBy: triggeringApproval.name,
+      changedByEmail: triggeringApproval.email,
+      comments,
+      appUrl
+    });
+
+    try {
+      await emailService.send({
+        to: request.submittedByEmail,
+        subject,
+        html,
+        approvalRequestId: request._id,
+        stakeholderName: request.submittedBy,
+        documentName: request.documentName,
+        type: 'approval_request'
+      });
+    } catch (err) {
+      console.error('[Email] Failed to notify submitter of document update:', err.message);
+    }
   }
 
   async _notifyCompletion(request) {
@@ -283,8 +361,9 @@ class ApprovalService {
       // Throttle gap between sends
       if (i > 0) await this._sleep(1500);
 
-      const approveUrl = `${appUrl}/approve/${approval.token}?action=approve`;
-      const rejectUrl  = `${appUrl}/approve/${approval.token}?action=reject`;
+      const approveUrl  = `${appUrl}/approve/${approval.token}?action=approve`;
+      const rejectUrl   = `${appUrl}/approve/${approval.token}?action=reject`;
+      const changesUrl  = `${appUrl}/approve/${approval.token}?action=changes_made`;
 
       const { subject, html } = reminderTemplate({
         stakeholderName: approval.name,
@@ -292,6 +371,7 @@ class ApprovalService {
         documentWebUrl: request.documentWebUrl,
         approveUrl,
         rejectUrl,
+        changesUrl,
         submittedBy: request.submittedBy,
         appUrl,
         reminderNumber: approval.reminderCount + 1,

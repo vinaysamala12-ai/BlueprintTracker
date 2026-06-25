@@ -65,12 +65,15 @@ exports.getByToken = asyncHandler(async (req, res) => {
 // POST /api/approvals/respond/:token  — public
 exports.respond = asyncHandler(async (req, res) => {
   const { action, comments } = req.body;
-  if (!['approve', 'reject'].includes(action)) {
-    return res.status(400).json({ message: 'Action must be "approve" or "reject"' });
+  if (!['approve', 'reject', 'changes_made'].includes(action)) {
+    return res.status(400).json({ message: 'Action must be "approve", "reject", or "changes_made"' });
   }
   const request = await approvalService.processResponse(req.params.token, action, comments);
+  const message = action === 'changes_made'
+    ? 'Document update noted — all stakeholders will receive new review emails'
+    : `Document ${action}d successfully`;
   res.json({
-    message: `Document ${action}d successfully`,
+    message,
     status: request.status,
     approvedCount: request.approvedCount,
     rejectedCount: request.rejectedCount

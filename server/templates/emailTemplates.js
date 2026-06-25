@@ -43,7 +43,7 @@ const footerStyle = `
 `;
 
 // ─── Approval Request ───────────────────────────────────────────────────────
-function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl, approveUrl, rejectUrl, submittedBy, appUrl, reminderIntervalHours }) {
+function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl, approveUrl, rejectUrl, changesUrl, submittedBy, appUrl, reminderIntervalHours }) {
   return {
     subject: `Action Required: Approval needed for "${documentName}"`,
     html: `
@@ -69,6 +69,8 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
       <div style="text-align:center;margin:32px 0;">
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
+        <br/>
+        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ I've Updated the Document</a>
       </div>
 
       <p style="color:#94a3b8;font-size:13px;text-align:center;">
@@ -84,7 +86,7 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
 }
 
 // ─── Reminder ───────────────────────────────────────────────────────────────
-function reminderTemplate({ stakeholderName, documentName, documentWebUrl, approveUrl, rejectUrl, submittedBy, appUrl, reminderNumber, maxReminders }) {
+function reminderTemplate({ stakeholderName, documentName, documentWebUrl, approveUrl, rejectUrl, changesUrl, submittedBy, appUrl, reminderNumber, maxReminders }) {
   return {
     subject: `Reminder ${reminderNumber}/${maxReminders}: Approval still needed for "${documentName}"`,
     html: `
@@ -108,6 +110,8 @@ function reminderTemplate({ stakeholderName, documentName, documentWebUrl, appro
       <div style="text-align:center;margin:32px 0;">
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
+        <br/>
+        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ I've Updated the Document</a>
       </div>
     </div>
     <div style="${footerStyle}">
@@ -175,6 +179,43 @@ function completionTemplate({ submittedBy, documentName, documentWebUrl, status,
   };
 }
 
+// ─── Document Updated Notification (to submitter) ───────────────────────────
+function documentUpdatedTemplate({ submittedBy, documentName, documentWebUrl, changedBy, changedByEmail, comments, appUrl }) {
+  return {
+    subject: `✏️ "${documentName}" has been updated — re-review needed`,
+    html: `
+<div style="${baseStyle}">
+  <div style="${cardStyle}">
+    <div style="${headerStyle('#7c3aed')}">
+      <h1 style="color:#fff;margin:0;font-size:24px;">✏️ Document Updated</h1>
+      <p style="color:#ede9fe;margin:8px 0 0 0;font-size:14px;">Re-review is needed</p>
+    </div>
+    <div style="${bodyStyle}">
+      <p style="color:#1e293b;font-size:16px;">Hi <strong>${submittedBy}</strong>,</p>
+      <p style="color:#475569;">A stakeholder has indicated that <strong>"${documentName}"</strong> has been updated and requires re-review.</p>
+
+      <div style="background:#f5f3ff;border-left:4px solid #7c3aed;padding:20px;border-radius:4px;margin:24px 0;">
+        <p style="margin:0 0 8px 0;color:#5b21b6;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Updated By</p>
+        <p style="margin:0;color:#1e293b;font-size:16px;font-weight:600;">${changedBy}</p>
+        <p style="margin:4px 0 0 0;color:#64748b;font-size:13px;">${changedByEmail}</p>
+        ${comments ? `<p style="margin:12px 0 0 0;color:#475569;font-size:14px;"><strong>Note:</strong> ${comments}</p>` : ''}
+      </div>
+
+      <p style="color:#475569;">All stakeholders have been sent new approval emails with updated links. Please ensure the latest version of the document is available before they review it.</p>
+      ${documentWebUrl ? `<p><a href="${documentWebUrl}" style="color:#7c3aed;">View document →</a></p>` : ''}
+
+      <div style="text-align:center;margin-top:32px;">
+        <a href="${appUrl}/approvals" style="${btnStyle('#7c3aed')}">View in Dashboard</a>
+      </div>
+    </div>
+    <div style="${footerStyle}">
+      <p style="margin:0;">Document Approval System</p>
+    </div>
+  </div>
+</div>`
+  };
+}
+
 // ─── Test Email ──────────────────────────────────────────────────────────────
 function testEmailTemplate({ provider }) {
   return {
@@ -201,5 +242,6 @@ module.exports = {
   approvalRequestTemplate,
   reminderTemplate,
   completionTemplate,
+  documentUpdatedTemplate,
   testEmailTemplate
 };

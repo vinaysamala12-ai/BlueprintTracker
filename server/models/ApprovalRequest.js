@@ -5,7 +5,7 @@ const stakeholderApprovalSchema = new mongoose.Schema({
   email: { type: String, required: true },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'changes_made'],
     default: 'pending'
   },
   token: { type: String, required: true },
@@ -42,7 +42,13 @@ const approvalRequestSchema = new mongoose.Schema({
   submittedBy: { type: String, default: '' },
   submittedByEmail: { type: String, default: '' },
   notes: { type: String, default: '' },
-  remindersEnabled: { type: Boolean, default: true }
+  remindersEnabled: { type: Boolean, default: true },
+  changeHistory: [{
+    changedBy: { type: String, default: '' },
+    changedByEmail: { type: String, default: '' },
+    changedAt: { type: Date, default: null },
+    comments: { type: String, default: '' }
+  }]
 }, { timestamps: true });
 
 approvalRequestSchema.virtual('pendingCount').get(function () {

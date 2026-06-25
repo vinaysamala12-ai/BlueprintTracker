@@ -5,7 +5,7 @@ import { getApprovalByToken, respondToApproval } from '../../services/api';
 export default function ApprovalPage() {
   const { token } = useParams();
   const [searchParams] = useSearchParams();
-  const autoAction = searchParams.get('action'); // 'approve' | 'reject'
+  const autoAction = searchParams.get('action'); // 'approve' | 'reject' | 'changes_made'
 
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export default function ApprovalPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!action) { setError('Please select Approve or Reject'); return; }
+    if (!action) { setError('Please select an action'); return; }
     setSubmitting(true);
     setError('');
     try {
@@ -90,32 +90,39 @@ export default function ApprovalPage() {
     </div>
   );
 
-  if (done) return (
-    <div className="approval-page">
-      <div className="approval-card">
-        <div className={`approval-header ${result?.status === 'approved' ? 'green' : action === 'approve' ? 'green' : 'red'}`}>
-          <h1>{action === 'approve' ? '✅ Approved!' : '❌ Rejected'}</h1>
-          <p>Your response has been recorded</p>
-        </div>
-        <div className="approval-body">
-          <p style={{ color: '#475569', fontSize: 15 }}>
-            Thank you, <strong>{info.stakeholderName}</strong>. Your decision on <strong>"{info.documentName}"</strong> has been recorded.
-          </p>
-          {comments && (
-            <div className="alert alert-info mt-4">
-              Your comments: <em>"{comments}"</em>
-            </div>
-          )}
-          {result?.status && (
-            <div className={`alert mt-4 ${result.status === 'approved' ? 'alert-success' : result.status === 'rejected' ? 'alert-error' : 'alert-info'}`}>
-              Overall document status is now: <strong>{result.status}</strong>
-              {result.approvedCount !== undefined && ` (${result.approvedCount} of ${info.requiredApprovals || 3} approved)`}
-            </div>
-          )}
+  if (done) {
+    const isChanges = action === 'changes_made';
+    return (
+      <div className="approval-page">
+        <div className="approval-card">
+          <div className={`approval-header ${isChanges ? 'purple' : result?.status === 'approved' ? 'green' : action === 'approve' ? 'green' : 'red'}`}
+            style={isChanges ? { background: '#7c3aed' } : {}}>
+            <h1>{isChanges ? '✏️ Update Noted!' : action === 'approve' ? '✅ Approved!' : '❌ Rejected'}</h1>
+            <p>{isChanges ? 'All stakeholders will receive new review emails' : 'Your response has been recorded'}</p>
+          </div>
+          <div className="approval-body">
+            <p style={{ color: '#475569', fontSize: 15 }}>
+              {isChanges
+                ? <>Thank you, <strong>{info.stakeholderName}</strong>. The submitter has been notified and all stakeholders will receive fresh approval emails for <strong>"{info.documentName}"</strong>.</>
+                : <>Thank you, <strong>{info.stakeholderName}</strong>. Your decision on <strong>"{info.documentName}"</strong> has been recorded.</>
+              }
+            </p>
+            {comments && (
+              <div className="alert alert-info mt-4">
+                Your note: <em>"{comments}"</em>
+              </div>
+            )}
+            {!isChanges && result?.status && (
+              <div className={`alert mt-4 ${result.status === 'approved' ? 'alert-success' : result.status === 'rejected' ? 'alert-error' : 'alert-info'}`}>
+                Overall document status is now: <strong>{result.status}</strong>
+                {result.approvedCount !== undefined && ` (${result.approvedCount} of ${info.requiredApprovals || 3} approved)`}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <div className="approval-page">
@@ -184,20 +191,52 @@ export default function ApprovalPage() {
                   ✗ Reject
                 </button>
               </div>
+              <div style={{ marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setAction('changes_made')}
+                  style={{
+                    width: '100%', padding: '14px', border: '2px solid',
+                    borderColor: action === 'changes_made' ? '#7c3aed' : '#e2e8f0',
+                    background: action === 'changes_made' ? '#f5f3ff' : '#fff',
+                    borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 600,
+                    color: action === 'changes_made' ? '#7c3aed' : '#64748b',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  ✏️ I've Updated the Document
+                </button>
+              </div>
+              {action === 'changes_made' && (
+                <p style={{ color: '#7c3aed', fontSize: 13, marginTop: 8 }}>
+                  This will notify the submitter and send fresh review emails to all stakeholders.
+                </p>
+              )}
             </div>
 
             <div className="form-group">
-              <label className="form-label">Comments (optional)</label>
+              <label className="form-label">
+                {action === 'changes_made' ? 'Note (optional)' : 'Comments (optional)'}
+              </label>
               <textarea
                 className="form-textarea"
                 value={comments}
                 onChange={e => setComments(e.target.value)}
-                placeholder="Add any comments or reasons for your decision…"
+                placeholder={action === 'changes_made' ? 'Describe what was updated…' : 'Add any comments or reasons for your decision…'}
               />
             </div>
 
-            <button type="submit" className={`btn w-full btn-lg ${action === 'approve' ? 'btn-success' : action === 'reject' ? 'btn-danger' : 'btn-primary'}`} disabled={submitting || !action}>
-              {submitting ? '⏳ Submitting…' : action === 'approve' ? '✓ Confirm Approval' : action === 'reject' ? '✗ Confirm Rejection' : 'Select a decision above'}
+            <button
+              type="submit"
+              className={`btn w-full btn-lg ${action === 'approve' ? 'btn-success' : action === 'reject' ? 'btn-danger' : action === 'changes_made' ? 'btn-primary' : 'btn-primary'}`}
+              disabled={submitting || !action}
+              style={action === 'changes_made' ? { background: '#7c3aed', borderColor: '#7c3aed' } : {}}
+            >
+              {submitting ? '⏳ Submitting…'
+                : action === 'approve' ? '✓ Confirm Approval'
+                : action === 'reject' ? '✗ Confirm Rejection'
+                : action === 'changes_made' ? '✏️ Notify — Document Updated'
+                : 'Select a decision above'}
             </button>
           </form>
         </div>
