@@ -211,28 +211,35 @@ export default function ApprovalTracker() {
                     <hr className="divider" />
                     <div className="section-title mb-4">Stakeholder Timeline</div>
                     <ul className="timeline">
-                      {selected.approvals.map(a => (
-                        <li key={a._id} className="timeline-item">
-                          <div className={`timeline-dot ${a.status}`}>{statusIcon[a.status]}</div>
-                          <div className="timeline-content">
-                            <div className="timeline-name">{a.name}</div>
-                            <div className="timeline-email">{a.email}</div>
-                            <div className="timeline-meta">
-                              {a.status === 'changes_made'
-                                ? `Amended · ${new Date(a.respondedAt).toLocaleString()}`
-                                : a.status !== 'pending'
-                                ? `${a.status} · ${new Date(a.respondedAt).toLocaleString()}`
-                                : `Pending · ${a.reminderCount} reminder${a.reminderCount !== 1 ? 's' : ''} sent`
-                              }
-                            </div>
-                            {a.comments && (
-                              <div className={`alert ${a.status === 'changes_made' ? 'alert-warning' : 'alert-info'}`} style={{ marginTop: 6, padding: '6px 10px', fontSize: 12 }}>
-                                "{a.comments}"
+                      {selected.approvals.map(a => {
+                        const amendments = (selected.changeHistory || []).filter(c => c.changedByEmail === a.email);
+                        return (
+                          <li key={a._id} className="timeline-item">
+                            <div className={`timeline-dot ${a.status}`}>{statusIcon[a.status]}</div>
+                            <div className="timeline-content">
+                              <div className="timeline-name">{a.name}</div>
+                              <div className="timeline-email">{a.email}</div>
+                              <div className="timeline-meta">
+                                {a.status !== 'pending'
+                                  ? `${a.status} · ${new Date(a.respondedAt).toLocaleString()}`
+                                  : `Pending · ${a.reminderCount} reminder${a.reminderCount !== 1 ? 's' : ''} sent`
+                                }
                               </div>
-                            )}
-                          </div>
-                        </li>
-                      ))}
+                              {a.comments && (
+                                <div className="alert alert-info" style={{ marginTop: 6, padding: '6px 10px', fontSize: 12 }}>
+                                  "{a.comments}"
+                                </div>
+                              )}
+                              {amendments.map((c, i) => (
+                                <div key={i} className="alert alert-warning" style={{ marginTop: 6, padding: '6px 10px', fontSize: 12 }}>
+                                  ✏️ Amended · {new Date(c.changedAt).toLocaleString()}
+                                  {c.comments && <> — "{c.comments}"</>}
+                                </div>
+                              ))}
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
 
                     {['pending', 'in_progress'].includes(selected.status) && (
