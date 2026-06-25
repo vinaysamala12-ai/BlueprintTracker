@@ -246,11 +246,18 @@ class ApprovalService {
     });
 
     // Reset all stakeholders: new tokens, back to pending
+    // Keep the triggering stakeholder's status and comment visible in the dashboard
     request.approvals.forEach(a => {
-      a.status = 'pending';
+      if (a._id.toString() === triggeringApproval._id.toString()) {
+        a.status = 'changes_made';
+        a.respondedAt = new Date();
+        a.comments = comments;
+      } else {
+        a.status = 'pending';
+        a.comments = '';
+        a.respondedAt = null;
+      }
       a.token = uuidv4();
-      a.respondedAt = null;
-      a.comments = '';
       a.reminderCount = 0;
       a.lastReminderSent = null;
       a.initialEmailSent = false;

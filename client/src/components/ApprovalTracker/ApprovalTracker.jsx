@@ -59,7 +59,7 @@ export default function ApprovalTracker() {
     }
   }
 
-  const statusIcon = { pending: '⏳', approved: '✅', rejected: '❌' };
+  const statusIcon = { pending: '⏳', approved: '✅', rejected: '❌', changes_made: '✏️' };
   const pages = Math.ceil(total / 15);
 
   return (
@@ -140,10 +140,10 @@ export default function ApprovalTracker() {
                           <span key={a._id} title={`${a.name} (${a.email}): ${a.status}`}
                             style={{
                               width: 28, height: 28, borderRadius: '50%',
-                              background: a.status === 'approved' ? '#dcfce7' : a.status === 'rejected' ? '#fee2e2' : '#fef9c3',
+                              background: a.status === 'approved' ? '#dcfce7' : a.status === 'rejected' ? '#fee2e2' : a.status === 'changes_made' ? '#f5f3ff' : '#fef9c3',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
                               border: '2px solid',
-                              borderColor: a.status === 'approved' ? '#16a34a' : a.status === 'rejected' ? '#dc2626' : '#d97706'
+                              borderColor: a.status === 'approved' ? '#16a34a' : a.status === 'rejected' ? '#dc2626' : a.status === 'changes_made' ? '#7c3aed' : '#d97706'
                             }}>
                             {statusIcon[a.status]}
                           </span>
@@ -218,13 +218,15 @@ export default function ApprovalTracker() {
                             <div className="timeline-name">{a.name}</div>
                             <div className="timeline-email">{a.email}</div>
                             <div className="timeline-meta">
-                              {a.status !== 'pending'
+                              {a.status === 'changes_made'
+                                ? `Amended · ${new Date(a.respondedAt).toLocaleString()}`
+                                : a.status !== 'pending'
                                 ? `${a.status} · ${new Date(a.respondedAt).toLocaleString()}`
                                 : `Pending · ${a.reminderCount} reminder${a.reminderCount !== 1 ? 's' : ''} sent`
                               }
                             </div>
                             {a.comments && (
-                              <div className="alert alert-info" style={{ marginTop: 6, padding: '6px 10px', fontSize: 12 }}>
+                              <div className={`alert ${a.status === 'changes_made' ? 'alert-warning' : 'alert-info'}`} style={{ marginTop: 6, padding: '6px 10px', fontSize: 12 }}>
                                 "{a.comments}"
                               </div>
                             )}

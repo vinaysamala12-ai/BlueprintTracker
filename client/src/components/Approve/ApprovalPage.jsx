@@ -115,7 +115,7 @@ export default function ApprovalPage() {
             {!isChanges && result?.status && (
               <div className={`alert mt-4 ${result.status === 'approved' ? 'alert-success' : result.status === 'rejected' ? 'alert-error' : 'alert-info'}`}>
                 Overall document status is now: <strong>{result.status}</strong>
-                {result.approvedCount !== undefined && ` (${result.approvedCount} of ${info.requiredApprovals || 3} approved)`}
+                {result.approvedCount !== undefined && info.requiredApprovals && ` (${result.approvedCount} of ${info.requiredApprovals} approved)`}
               </div>
             )}
           </div>

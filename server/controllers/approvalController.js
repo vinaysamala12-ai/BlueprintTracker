@@ -58,6 +58,7 @@ exports.getByToken = asyncHandler(async (req, res) => {
     status: approval.status,
     requestStatus: request.status,
     submittedBy: request.submittedBy,
+    requiredApprovals: request.requiredApprovals,
     createdAt: request.createdAt
   });
 });
