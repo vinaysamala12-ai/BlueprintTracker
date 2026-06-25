@@ -43,9 +43,18 @@ const footerStyle = `
 `;
 
 // ─── Approval Request ───────────────────────────────────────────────────────
-function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl, approveUrl, rejectUrl, changesUrl, submittedBy, appUrl, reminderIntervalHours }) {
+function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl, approveUrl, rejectUrl, changesUrl, submittedBy, appUrl, reminderIntervalHours, amendment }) {
+  const amendmentBanner = amendment ? `
+      <div style="background:#fef3c7;border-left:4px solid #d97706;padding:20px;border-radius:4px;margin:0 0 24px 0;">
+        <p style="margin:0 0 6px 0;color:#92400e;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">⚠️ Document Amended — Re-review Required</p>
+        <p style="margin:0 0 4px 0;color:#1e293b;font-size:14px;">This document was amended by <strong>${amendment.changedBy}</strong> (${amendment.changedByEmail}).</p>
+        ${amendment.comments ? `<p style="margin:8px 0 0 0;color:#475569;font-size:14px;"><strong>What changed:</strong> ${amendment.comments}</p>` : ''}
+      </div>` : '';
+
   return {
-    subject: `Action Required: Approval needed for "${documentName}"`,
+    subject: amendment
+      ? `Re-review Required: "${documentName}" has been amended`
+      : `Action Required: Approval needed for "${documentName}"`,
     html: `
 <div style="${baseStyle}">
   <div style="${cardStyle}">
@@ -54,8 +63,9 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
       <p style="color:#bfdbfe;margin:8px 0 0 0;font-size:14px;">Your review is needed</p>
     </div>
     <div style="${bodyStyle}">
+      ${amendmentBanner}
       <p style="color:#1e293b;font-size:16px;">Hi <strong>${stakeholderName}</strong>,</p>
-      <p style="color:#475569;">You have been requested to review and approve the following document:</p>
+      <p style="color:#475569;">${amendment ? 'The document listed below has been amended and requires your re-review:' : 'You have been requested to review and approve the following document:'}</p>
 
       <div style="background:#f1f5f9;border-left:4px solid #2563eb;padding:20px;border-radius:4px;margin:24px 0;">
         <p style="margin:0 0 8px 0;color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">Document</p>
@@ -70,7 +80,7 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
         <br/>
-        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ I've Updated the Document</a>
+        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amended</a>
       </div>
 
       <p style="color:#94a3b8;font-size:13px;text-align:center;">
@@ -111,7 +121,7 @@ function reminderTemplate({ stakeholderName, documentName, documentWebUrl, appro
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
         <br/>
-        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ I've Updated the Document</a>
+        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amended</a>
       </div>
     </div>
     <div style="${footerStyle}">

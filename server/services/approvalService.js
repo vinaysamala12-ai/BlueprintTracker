@@ -103,7 +103,7 @@ class ApprovalService {
     }
   }
 
-  async _sendInitialEmails(request, cfg) {
+  async _sendInitialEmails(request, cfg, amendment = null) {
     const appUrl = cfg.appUrl || 'http://localhost:3000';
     const results = [];
 
@@ -126,7 +126,8 @@ class ApprovalService {
         changesUrl,
         submittedBy: request.submittedBy,
         appUrl,
-        reminderIntervalHours: request.reminderConfig.intervalHours
+        reminderIntervalHours: request.reminderConfig.intervalHours,
+        amendment
       });
 
       try {
@@ -267,8 +268,12 @@ class ApprovalService {
     // Notify submitter
     await this._notifyDocumentUpdated(request, triggeringApproval, comments, cfg);
 
-    // Re-send approval emails to all stakeholders with fresh tokens
-    await this._sendInitialEmails(request, cfg);
+    // Re-send approval emails to all stakeholders with fresh tokens and amendment context
+    await this._sendInitialEmails(request, cfg, {
+      changedBy: triggeringApproval.name,
+      changedByEmail: triggeringApproval.email,
+      comments
+    });
 
     console.log(`[Email] ✏️ Document updated by ${triggeringApproval.email} — re-review emails sent to all stakeholders`);
     return request;
