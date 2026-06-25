@@ -80,7 +80,7 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
         <br/>
-        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amended</a>
+        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amend</a>
       </div>
 
       <p style="color:#94a3b8;font-size:13px;text-align:center;">
@@ -121,7 +121,7 @@ function reminderTemplate({ stakeholderName, documentName, documentWebUrl, appro
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
         <br/>
-        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amended</a>
+        <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amend</a>
       </div>
     </div>
     <div style="${footerStyle}">
