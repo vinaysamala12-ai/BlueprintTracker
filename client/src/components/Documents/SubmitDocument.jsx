@@ -184,7 +184,6 @@ export default function SubmitDocument() {
 
                 <div className="tabs">
                   <div className={`tab ${tab === 'browse' ? 'active' : ''}`} onClick={() => setTab('browse')}>Browse Storage</div>
-                  <div className={`tab ${tab === 'manual' ? 'active' : ''}`} onClick={() => setTab('manual')}>Enter Manually</div>
                   <div className={`tab ${tab === 'url' ? 'active' : ''}`} onClick={() => setTab('url')}>🔗 URL Link</div>
                 </div>
 
