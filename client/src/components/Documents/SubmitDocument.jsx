@@ -341,7 +341,7 @@ export default function SubmitDocument() {
                         <span style={{ fontSize: 20 }}>🔗</span>
                         <span style={{ fontSize: 13, color: '#0369a1' }}>
                           Paste any document URL — it will be shared with stakeholders in the approval email.
-                          No upload or storage connection required.
+                          Make sure all the Stakeholders have edit access on the document.
                         </span>
                       </div>
                     </div>
