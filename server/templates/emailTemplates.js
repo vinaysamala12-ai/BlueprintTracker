@@ -23,14 +23,15 @@ const bodyStyle = `padding: 40px;`;
 
 const btnStyle = (color = '#2563eb') => `
   display: inline-block;
-  padding: 14px 32px;
+  padding: 16px 36px;
   background: ${color};
   color: #ffffff !important;
   text-decoration: none;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 15px;
-  margin: 8px;
+  font-size: 16px;
+  margin: 6px;
+  white-space: nowrap;
 `;
 
 const footerStyle = `
@@ -79,7 +80,6 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
       <div style="text-align:center;margin:32px 0;">
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
-        <br/>
         <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amend</a>
       </div>
 
@@ -88,7 +88,7 @@ function approvalRequestTemplate({ stakeholderName, documentName, documentWebUrl
       </p>
     </div>
     <div style="${footerStyle}">
-      <p style="margin:0;">Document Approval System · <a href="${appUrl}" style="color:#2563eb;">Open Dashboard</a></p>
+      <p style="margin:0;">Document Approval System</p>
     </div>
   </div>
 </div>`
@@ -120,12 +120,11 @@ function reminderTemplate({ stakeholderName, documentName, documentWebUrl, appro
       <div style="text-align:center;margin:32px 0;">
         <a href="${approveUrl}" style="${btnStyle('#16a34a')}">✓ Approve</a>
         <a href="${rejectUrl}" style="${btnStyle('#dc2626')}">✗ Reject</a>
-        <br/>
         <a href="${changesUrl}" style="${btnStyle('#7c3aed')}">✏️ Amend</a>
       </div>
     </div>
     <div style="${footerStyle}">
-      <p style="margin:0;">Document Approval System · <a href="${appUrl}" style="color:#2563eb;">Open Dashboard</a></p>
+      <p style="margin:0;">Document Approval System</p>
     </div>
   </div>
 </div>`

@@ -324,21 +324,21 @@ tbody tr:last-child td { border-bottom: none; }
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-  max-width: 540px; width: 100%;
+  max-width: 440px; width: 100%;
   overflow: hidden;
 }
 .approval-header {
-  padding: 32px;
+  padding: 20px 24px;
   text-align: center;
 }
 .approval-header.blue    { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
 .approval-header.orange  { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
 .approval-header.green   { background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; }
 .approval-header.red     { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; }
-.approval-header h1 { font-size: 22px; font-weight: 700; }
-.approval-header p  { font-size: 14px; opacity: 0.85; margin-top: 6px; }
-.approval-body  { padding: 32px; }
-.approval-footer{ padding: 20px 32px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; }
+.approval-header h1 { font-size: 18px; font-weight: 700; }
+.approval-header p  { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+.approval-body  { padding: 20px 24px; }
+.approval-footer{ padding: 14px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; }
 
 /* ── Misc ────────────────────────────────────────────────────────────────── */
 .text-muted { color: #94a3b8; font-size: 13px; }
