@@ -204,7 +204,7 @@ export default function ApprovalPage() {
                     transition: 'all 0.15s'
                   }}
                 >
-                  ✏️ I've Updated the Document
+                  ✏️ Amend
                 </button>
               </div>
               {action === 'changes_made' && (
@@ -235,7 +235,7 @@ export default function ApprovalPage() {
               {submitting ? '⏳ Submitting…'
                 : action === 'approve' ? '✓ Confirm Approval'
                 : action === 'reject' ? '✗ Confirm Rejection'
-                : action === 'changes_made' ? '✏️ Notify — Document Updated'
+                : action === 'changes_made' ? '✏️ Notify Changes'
                 : 'Select a decision above'}
             </button>
           </form>

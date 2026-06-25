@@ -179,7 +179,7 @@ export default function SubmitDocument() {
                 <div className="section-title mb-4">📄 Select Document</div>
 
                 <div className="tabs">
-                  <div className={`tab ${tab === 'browse' ? 'active' : ''}`} onClick={() => setTab('browse')}>Browse Storage</div>
+                  <div className="tab" style={{ opacity: 0.4, cursor: 'not-allowed', pointerEvents: 'none' }}>Browse Storage</div>
                   <div className={`tab ${tab === 'url' ? 'active' : ''}`} onClick={() => setTab('url')}>🔗 URL Link</div>
                 </div>
 
