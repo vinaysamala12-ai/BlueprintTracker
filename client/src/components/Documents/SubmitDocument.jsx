@@ -45,11 +45,7 @@ export default function SubmitDocument() {
   const [urlLink, setUrlLink]       = useState('');
 
   // submission
-  const [stakeholders, setStakeholders] = useState([
-    { ...EMPTY_STAKEHOLDER },
-    { ...EMPTY_STAKEHOLDER },
-    { ...EMPTY_STAKEHOLDER }
-  ]);
+  const [stakeholders, setStakeholders] = useState([{ ...EMPTY_STAKEHOLDER }]);
   const [submittedBy, setSubmittedBy]         = useState('');
   const [submittedByEmail, setSubmittedByEmail] = useState('');
   const [notes, setNotes]                     = useState('');
@@ -170,7 +166,7 @@ export default function SubmitDocument() {
   return (
     <>
       <div className="page-header">
-        <div><h1>Submit Document for Approval</h1><p>Select a document and assign 3 stakeholders</p></div>
+        <div><h1>Submit Document for Approval</h1><p>Select a document and assign up to 5 stakeholders</p></div>
       </div>
       <div className="page-body">
         {error && <div className="alert alert-error">⚠️ {error}</div>}
@@ -409,12 +405,25 @@ export default function SubmitDocument() {
               </div>
 
               <div className="card">
-                <div className="section-title mb-4">👥 Stakeholders (3 required)</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div className="section-title" style={{ marginBottom: 0 }}>👥 Stakeholders</div>
+                  <span className="text-sm text-muted">{stakeholders.length} / 5</span>
+                </div>
                 {stakeholders.map((s, i) => (
                   <div key={i} style={{ marginBottom: 20 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                      <span className="stakeholder-num">{i + 1}</span>
-                      <span className="text-sm font-bold" style={{ color: '#374151' }}>Stakeholder {i + 1}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span className="stakeholder-num">{i + 1}</span>
+                        <span className="text-sm font-bold" style={{ color: '#374151' }}>Stakeholder {i + 1}</span>
+                      </div>
+                      {stakeholders.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setStakeholders(prev => prev.filter((_, idx) => idx !== i))}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', fontSize: 18, lineHeight: 1, padding: '0 2px' }}
+                          title="Remove stakeholder"
+                        >×</button>
+                      )}
                     </div>
                     <div className="form-row">
                       <div className="form-group" style={{ marginBottom: 0 }}>
@@ -428,6 +437,14 @@ export default function SubmitDocument() {
                     </div>
                   </div>
                 ))}
+                {stakeholders.length < 5 && (
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    style={{ width: '100%', marginTop: 4 }}
+                    onClick={() => setStakeholders(prev => [...prev, { ...EMPTY_STAKEHOLDER }])}
+                  >+ Add Stakeholder</button>
+                )}
               </div>
 
               <div className="mt-6">
@@ -436,7 +453,7 @@ export default function SubmitDocument() {
                 </button>
               </div>
               <div className="text-muted text-sm mt-4" style={{ textAlign: 'center' }}>
-                Approval emails will be sent immediately to all 3 stakeholders
+                Approval emails will be sent immediately to all stakeholders
               </div>
             </div>
 
