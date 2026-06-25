@@ -161,46 +161,46 @@ export default function ApprovalPage() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">Your Decision <span className="required">*</span></label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAction('approve')}
-                  style={{
-                    flex: 1, padding: '14px', border: '2px solid',
-                    borderColor: action === 'approve' ? '#16a34a' : '#e2e8f0',
-                    background: action === 'approve' ? '#f0fdf4' : '#fff',
-                    borderRadius: 8, cursor: 'pointer', fontSize: 16, fontWeight: 600,
-                    color: action === 'approve' ? '#16a34a' : '#64748b',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  ✓ Approve
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAction('reject')}
-                  style={{
-                    flex: 1, padding: '14px', border: '2px solid',
-                    borderColor: action === 'reject' ? '#dc2626' : '#e2e8f0',
-                    background: action === 'reject' ? '#fef2f2' : '#fff',
-                    borderRadius: 8, cursor: 'pointer', fontSize: 16, fontWeight: 600,
-                    color: action === 'reject' ? '#dc2626' : '#64748b',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  ✗ Reject
-                </button>
-              </div>
-              <div style={{ marginTop: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setAction('approve')}
+                    style={{
+                      flex: 1, padding: '12px', border: '2px solid',
+                      borderColor: action === 'approve' ? '#16a34a' : '#e2e8f0',
+                      background: action === 'approve' ? '#f0fdf4' : '#fff',
+                      borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 600,
+                      color: action === 'approve' ? '#16a34a' : '#64748b',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    ✓ Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAction('reject')}
+                    style={{
+                      flex: 1, padding: '12px', border: '2px solid',
+                      borderColor: action === 'reject' ? '#dc2626' : '#e2e8f0',
+                      background: action === 'reject' ? '#fef2f2' : '#fff',
+                      borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 600,
+                      color: action === 'reject' ? '#dc2626' : '#64748b',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    ✗ Reject
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => setAction('changes_made')}
                   style={{
-                    width: '100%', padding: '14px', border: '2px solid',
+                    width: '100%', padding: '12px', border: '2px solid',
                     borderColor: action === 'changes_made' ? '#7c3aed' : '#e2e8f0',
                     background: action === 'changes_made' ? '#f5f3ff' : '#fff',
-                    borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 600,
-                    color: action === 'changes_made' ? '#7c3aed' : '#64748b',
+                    borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                    color: action === 'changes_made' ? '#7c3aed' : '#94a3b8',
                     transition: 'all 0.15s'
                   }}
                 >
