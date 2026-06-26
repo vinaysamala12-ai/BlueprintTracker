@@ -10,7 +10,7 @@ const PUBLIC_PATHS = [
   { method: 'GET',  path: '/api/approvals/scheduler/run' }, // browser test
 ];
 
-module.exports = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const isPublic = PUBLIC_PATHS.some(p =>
     req.method === p.method && req.path.startsWith(p.path)
   );
@@ -27,3 +27,11 @@ module.exports = (req, res, next) => {
     res.status(401).json({ message: 'Invalid or expired token — please log in again' });
   }
 };
+
+const adminOnly = (req, res, next) => {
+  if (req.user?.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
+  next();
+};
+
+module.exports = authMiddleware;
+module.exports.adminOnly = adminOnly;

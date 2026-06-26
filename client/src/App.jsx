@@ -9,6 +9,7 @@ import ApprovalPage from './components/Approve/ApprovalPage';
 import NotificationLogs from './components/NotificationLogs/NotificationLogs';
 import Login from './components/Login/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Navigate } from 'react-router-dom';
 
 const NAV = [
   { to: '/',           label: 'Dashboard',       icon: '🏠' },
@@ -22,14 +23,18 @@ const NAV = [
 function Sidebar() {
   const location = useLocation();
   const nav = useNavigate();
+  const isAdmin = localStorage.getItem('auth_role') === 'admin';
 
   // Hide sidebar on the public approval page and login page
   if (location.pathname.startsWith('/approve/') || location.pathname === '/login') return null;
 
   function handleLogout() {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_role');
     nav('/login', { replace: true });
   }
+
+  const visibleNav = NAV.filter(n => n.to !== '/settings' || isAdmin);
 
   return (
     <aside className="sidebar">
@@ -38,7 +43,7 @@ function Sidebar() {
         <span>Workflow System</span>
       </div>
       <nav className="sidebar-nav">
-        {NAV.map(n => (
+        {visibleNav.map(n => (
           <NavLink
             key={n.to}
             to={n.to}
@@ -95,7 +100,7 @@ export default function App() {
           <Route path="/submit"    element={<ProtectedRoute><SubmitDocument /></ProtectedRoute>} />
           <Route path="/approvals" element={<ProtectedRoute><ApprovalTracker /></ProtectedRoute>} />
           <Route path="/logs"      element={<ProtectedRoute><NotificationLogs /></ProtectedRoute>} />
-          <Route path="/settings"  element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/settings"  element={<ProtectedRoute>{localStorage.getItem('auth_role') === 'admin' ? <Settings /> : <Navigate to="/" replace />}</ProtectedRoute>} />
         </Routes>
       </Layout>
     </BrowserRouter>

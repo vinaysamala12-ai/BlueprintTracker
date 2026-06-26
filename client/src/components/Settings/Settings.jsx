@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getConfig, updateConfig, testEmail, testStorage, runSchedulerNow } from '../../services/api';
+import { getConfig, updateConfig, testEmail, testStorage, runSchedulerNow, getUsers, createUser, deleteUser } from '../../services/api';
 
 export default function Settings() {
   const [cfg, setCfg]                       = useState(null);
@@ -11,8 +11,11 @@ export default function Settings() {
   const [testEmailAddr, setTestEmailAddr]   = useState('');
   const [msg, setMsg]                       = useState({ type: '', text: '' });
   const [activeTab, setActiveTab]           = useState('email');
+  const [users, setUsers]                   = useState([]);
+  const [newUser, setNewUser]               = useState({ username: '', password: '', name: '', email: '' });
+  const [userMsg, setUserMsg]               = useState({ type: '', text: '' });
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); loadUsers(); }, []);
 
   async function load() {
     setLoading(true);
@@ -37,6 +40,26 @@ export default function Settings() {
       obj[parts[parts.length - 1]] = val;
       return next;
     });
+  }
+
+  async function loadUsers() {
+    try { const r = await getUsers(); setUsers(r.data.users); } catch {}
+  }
+
+  async function handleCreateUser(e) {
+    e.preventDefault(); setUserMsg({ type: '', text: '' });
+    try {
+      await createUser(newUser);
+      setNewUser({ username: '', password: '', name: '', email: '' });
+      setUserMsg({ type: 'success', text: '✅ User created successfully.' });
+      loadUsers();
+    } catch (err) { setUserMsg({ type: 'error', text: err.message }); }
+  }
+
+  async function handleDeleteUser(username) {
+    if (!window.confirm(`Delete user "${username}"?`)) return;
+    try { await deleteUser(username); loadUsers(); }
+    catch (err) { setUserMsg({ type: 'error', text: err.message }); }
   }
 
   async function handleSave(e) {
@@ -120,6 +143,7 @@ export default function Settings() {
             ['scheduler', '⏰ Scheduler'],
             ['storage',   '☁️ Storage'],
             ['general',   '⚙️ General'],
+            ['users',     '👥 Users'],
           ].map(([id, label]) => (
             <div key={id} className={`tab ${activeTab === id ? 'active' : ''}`}
               onClick={() => setActiveTab(id)}>{label}</div>
@@ -361,6 +385,87 @@ export default function Settings() {
             </button>
           </div>
         </form>
+
+        {/* ── USERS (outside main form) ──────────────────────────────── */}
+        {activeTab === 'users' && (
+          <div style={{ maxWidth: 560 }}>
+            {userMsg.text && (
+              <div className={`alert alert-${userMsg.type === 'error' ? 'error' : 'success'} mb-4`}>
+                {userMsg.text}
+                <button className="alert-close" onClick={() => setUserMsg({ type: '', text: '' })}>✕</button>
+              </div>
+            )}
+            <div className="card mb-4">
+              <div className="section-title mb-4">➕ Create User</div>
+              <form onSubmit={handleCreateUser}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Name</label>
+                    <input className="form-input" placeholder="Full name"
+                      value={newUser.name} onChange={e => setNewUser(p => ({ ...p, name: e.target.value }))} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Email</label>
+                    <input className="form-input" type="email" placeholder="user@company.com"
+                      value={newUser.email} onChange={e => setNewUser(p => ({ ...p, email: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Username <span className="required">*</span></label>
+                    <input className="form-input" placeholder="username" required
+                      value={newUser.username} onChange={e => setNewUser(p => ({ ...p, username: e.target.value }))} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Password <span className="required">*</span></label>
+                    <input className="form-input" type="password" placeholder="••••••••" required
+                      value={newUser.password} onChange={e => setNewUser(p => ({ ...p, password: e.target.value }))} />
+                  </div>
+                </div>
+                <button type="submit" className="btn btn-primary">Create User</button>
+              </form>
+            </div>
+
+            <div className="card">
+              <div className="section-title mb-4">👤 Existing Users</div>
+              {users.length === 0 ? (
+                <p className="text-muted">No users found.</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc' }}>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', color: '#64748b', fontSize: 13 }}>Username</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', color: '#64748b', fontSize: 13 }}>Name</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', color: '#64748b', fontSize: 13 }}>Role</th>
+                      <th style={{ padding: '10px 12px' }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map(u => (
+                      <tr key={u.username} style={{ borderTop: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 12px', fontSize: 14 }}>{u.username}</td>
+                        <td style={{ padding: '10px 12px', fontSize: 14, color: '#475569' }}>{u.name || '—'}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 4,
+                            background: u.role === 'admin' ? '#dbeafe' : '#f1f5f9',
+                            color: u.role === 'admin' ? '#1d4ed8' : '#64748b' }}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                          {u.role !== 'admin' && (
+                            <button className="btn btn-danger" style={{ padding: '4px 12px', fontSize: 13 }}
+                              onClick={() => handleDeleteUser(u.username)}>Delete</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

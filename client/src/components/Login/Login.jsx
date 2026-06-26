@@ -15,6 +15,7 @@ export default function Login() {
     try {
       const res = await login(username, password);
       localStorage.setItem('auth_token', res.data.token);
+      localStorage.setItem('auth_role', res.data.role);
       nav('/', { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed');

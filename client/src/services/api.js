@@ -30,6 +30,9 @@ api.interceptors.response.use(
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
 export const login = (username, password) => api.post('/auth/login', { username, password });
+export const getUsers    = ()                       => api.get('/auth/users');
+export const createUser  = (data)                   => api.post('/auth/users', data);
+export const deleteUser  = (username)               => api.delete(`/auth/users/${username}`);
 
 // ── Documents ────────────────────────────────────────────────────────────────
 export const getDocuments = (params) => api.get('/documents', { params });

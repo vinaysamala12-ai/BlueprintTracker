@@ -5,6 +5,7 @@
  */
 
 const Config = require('../models/Config');
+const User   = require('../models/User');
 
 const seedConfig = async () => {
   try {
@@ -63,6 +64,18 @@ const seedConfig = async () => {
     if (process.env.APP_URL) cfg.appUrl = process.env.APP_URL;
 
     await cfg.save();
+
+    // ── Seed admin user ───────────────────────────────────────────────────
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminPassword) {
+      const existing = await User.findOne({ username: adminUsername });
+      if (!existing) {
+        await User.create({ username: adminUsername, password: adminPassword, role: 'admin', name: 'Administrator' });
+        console.log(`[Config] Admin user "${adminUsername}" created.`);
+      }
+    }
+
     console.log('[Config] Configuration ready.');
   } catch (err) {
     console.error('[Config] Failed to seed config:', err.message);
