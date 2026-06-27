@@ -11,6 +11,12 @@ import Login from './components/Login/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
 
+function AdminRoute({ children }) {
+  if (!localStorage.getItem('auth_token')) return <Navigate to="/login" replace />;
+  if (localStorage.getItem('auth_role') !== 'admin') return <Navigate to="/" replace />;
+  return children;
+}
+
 const NAV = [
   { to: '/',           label: 'Dashboard',       icon: '🏠' },
   { to: '/documents',  label: 'Documents',        icon: '📄' },
@@ -100,7 +106,7 @@ export default function App() {
           <Route path="/submit"    element={<ProtectedRoute><SubmitDocument /></ProtectedRoute>} />
           <Route path="/approvals" element={<ProtectedRoute><ApprovalTracker /></ProtectedRoute>} />
           <Route path="/logs"      element={<ProtectedRoute><NotificationLogs /></ProtectedRoute>} />
-          <Route path="/settings"  element={<ProtectedRoute>{localStorage.getItem('auth_role') === 'admin' ? <Settings /> : <Navigate to="/" replace />}</ProtectedRoute>} />
+          <Route path="/settings"  element={<AdminRoute><Settings /></AdminRoute>} />
         </Routes>
       </Layout>
     </BrowserRouter>
