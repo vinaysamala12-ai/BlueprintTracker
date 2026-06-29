@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getDocumentStats, getApprovalStats, getSchedulerStatus, runSchedulerNow, getApprovals } from '../../services/api';
 
 export default function Dashboard() {
+  const isAdmin = localStorage.getItem('auth_role') === 'admin';
   const [docStats, setDocStats] = useState(null);
   const [aprStats, setAprStats] = useState(null);
   const [scheduler, setScheduler] = useState(null);
@@ -110,41 +111,43 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <div className="grid-2 mt-6">
-          {/* ── Scheduler card ── */}
-          <div className="card">
-            <div className="section-header mb-4">
-              <div className="section-title">⏰ Scheduler</div>
-              <button className="btn btn-outline btn-sm" onClick={handleRunNow} disabled={running}>
-                {running ? 'Running…' : '▶ Run Now'}
-              </button>
-            </div>
-            {scheduler ? (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className={`badge ${scheduler.enabled ? 'badge-approved' : 'badge-rejected'}`}>
-                    {scheduler.enabled ? '● Active' : '○ Disabled'}
-                  </span>
-                  <span className="text-muted">task {scheduler.taskActive ? 'running' : 'stopped'}</span>
-                </div>
-                <table style={{ width: '100%' }}>
-                  <tbody>
-                    {[
-                      ['Cron expression', scheduler.cronExpression],
-                      ['Reminder interval', `${scheduler.reminderIntervalHours}h`],
-                      ['Max reminders', scheduler.maxReminders],
-                    ].map(([k, v]) => (
-                      <tr key={k}>
-                        <td className="text-muted text-sm" style={{ paddingBottom: 8 }}>{k}</td>
-                        <td className="text-sm font-bold" style={{ paddingBottom: 8 }}>{v}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <Link to="/settings" className="btn btn-outline btn-sm mt-4">Configure →</Link>
+        <div className={`mt-6 ${isAdmin ? 'grid-2' : ''}`}>
+          {/* ── Scheduler card (admin only) ── */}
+          {isAdmin && (
+            <div className="card">
+              <div className="section-header mb-4">
+                <div className="section-title">⏰ Scheduler</div>
+                <button className="btn btn-outline btn-sm" onClick={handleRunNow} disabled={running}>
+                  {running ? 'Running…' : '▶ Run Now'}
+                </button>
               </div>
-            ) : <div className="loading-center"><div className="spinner" /></div>}
-          </div>
+              {scheduler ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className={`badge ${scheduler.enabled ? 'badge-approved' : 'badge-rejected'}`}>
+                      {scheduler.enabled ? '● Active' : '○ Disabled'}
+                    </span>
+                    <span className="text-muted">task {scheduler.taskActive ? 'running' : 'stopped'}</span>
+                  </div>
+                  <table style={{ width: '100%' }}>
+                    <tbody>
+                      {[
+                        ['Cron expression', scheduler.cronExpression],
+                        ['Reminder interval', `${scheduler.reminderIntervalHours}h`],
+                        ['Max reminders', scheduler.maxReminders],
+                      ].map(([k, v]) => (
+                        <tr key={k}>
+                          <td className="text-muted text-sm" style={{ paddingBottom: 8 }}>{k}</td>
+                          <td className="text-sm font-bold" style={{ paddingBottom: 8 }}>{v}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <Link to="/settings" className="btn btn-outline btn-sm mt-4">Configure →</Link>
+                </div>
+              ) : <div className="loading-center"><div className="spinner" /></div>}
+            </div>
+          )}
 
           {/* ── Recent approvals ── */}
           <div className="card">
